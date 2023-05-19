@@ -36,7 +36,6 @@ jobs:
     - name: Build the book
       shell: bash -l {0}
       run: |
-        conda activate pyglet
         PYTHONPATH=./ jupyter-book build book/
 
     # Push the book's HTML to github-pages
