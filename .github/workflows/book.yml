@@ -26,13 +26,15 @@ jobs:
         auto-activate-base: false
 
     # check conda environment
-    - shell: bash -l {0}
+    - name: Check conda env
+      shell: bash -l {0}
       run: |
         conda info
         conda list
 
     # Build the book
     - name: Build the book
+      shell: /usr/bin/bash -e {0}
       run: |
         PYTHONPATH=./ jupyter-book build book/
 
