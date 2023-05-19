@@ -145,11 +145,11 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    Introduction
+                    pyglet
                 </a>
             </li>
         </ul>
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API References</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="loadsim.html">LoadSim class</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Utility functions</a></li>
@@ -351,52 +351,6 @@ document.write(`
                   
   <section id="utility-functions">
 <h1>Utility functions<a class="headerlink" href="#utility-functions" title="Permalink to this headline">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="pyglet.transform.to_spherical">
-<span class="sig-prename descclassname"><span class="pre">pyglet.transform.</span></span><span class="sig-name descname"><span class="pre">to_spherical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyglet/transform.html#to_spherical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyglet.transform.to_spherical" title="Permalink to this definition">#</a></dt>
-<dd><p>Transform vector components from Cartesian to spherical coordinates</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>vec</strong> (<em>tuple</em>) – Cartesian vector components (vx, vy, vz)</p></li>
-<li><p><strong>origin</strong> (<em>tuple</em>) – Origin of the spherical coordinates (x0, y0, z0)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>vec_sph</strong> – Spherical vector components (v_r, v_th, v_ph)</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>tuple</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyglet.transform.groupby_bins">
-<span class="sig-prename descclassname"><span class="pre">pyglet.transform.</span></span><span class="sig-name descname"><span class="pre">groupby_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cumulative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyglet/transform.html#groupby_bins"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyglet.transform.groupby_bins" title="Permalink to this definition">#</a></dt>
-<dd><p>Alternative to xr.groupby_bins, which is very slow</p>
-<dl class="simple">
-<dt>dat<span class="classifier">xarray.DataArray</span></dt><dd><p>input dataArray</p>
-</dd>
-<dt>coord<span class="classifier">str</span></dt><dd><p>coordinate name along which data is binned</p>
-</dd>
-<dt>edges<span class="classifier">array-like</span></dt><dd><p>bin edges</p>
-</dd>
-<dt>cumulative<span class="classifier">bool</span></dt><dd><p>if True, perform cumulative binning, e.g.,
-<code class="docutils literal notranslate"><span class="pre">v_r_binned[i]</span> <span class="pre">=</span> <span class="pre">v_r(</span> <span class="pre">edge[0]</span> <span class="pre">&lt;=</span> <span class="pre">r</span> <span class="pre">&lt;</span> <span class="pre">edge[i+1]</span> <span class="pre">).mean()</span></code>
-to calculate average velocity dispersion within radius r</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>res</strong> – binned array</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>xarray.DataArray</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 
     <script type="text/x-thebe-config">

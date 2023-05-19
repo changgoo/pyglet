@@ -64,7 +64,7 @@ const thebe_selector_output = ".output, .cell_output"
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Utility functions" href="transform.html" />
-    <link rel="prev" title="Introduction" href="intro.html" />
+    <link rel="prev" title="pyglet" href="intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="None"/>
   </head>
@@ -145,11 +145,11 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    Introduction
+                    pyglet
                 </a>
             </li>
         </ul>
-        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API References</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">LoadSim class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transform.html">Utility functions</a></li>
@@ -351,145 +351,6 @@ document.write(`
                   
   <section id="loadsim-class">
 <h1>LoadSim class<a class="headerlink" href="#loadsim-class" title="Permalink to this headline">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyglet.loadsim.</span></span><span class="sig-name descname"><span class="pre">LoadSim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basedir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyglet/loadsim.html#LoadSim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyglet.loadsim.LoadSim" title="Permalink to this definition">#</a></dt>
-<dd><p>Class for preparing Athena++ simulation data analysis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>basedir</strong> (<em>str</em>) – Name of the directory where all data is stored</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">load_athdf</span> <span class="pre">:</span> <span class="pre">Reads</span> <span class="pre">hdf5</span> <span class="pre">(.athdf)</span> <span class="pre">output</span> <span class="pre">file</span></span></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">load_hst</span> <span class="pre">:</span> <span class="pre">Reads</span> <span class="pre">history</span> <span class="pre">dump</span> <span class="pre">(.hst)</span></span></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.basedir">
-<span class="sig-name descname"><span class="pre">basedir</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.basedir" title="Permalink to this definition">#</a></dt>
-<dd><p>base directory of simulation output</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.basename">
-<span class="sig-name descname"><span class="pre">basename</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.basename" title="Permalink to this definition">#</a></dt>
-<dd><p>basename (tail) of basedir</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.files">
-<span class="sig-name descname"><span class="pre">files</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.files" title="Permalink to this definition">#</a></dt>
-<dd><p>output file paths for athdf, hst, rst</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.problem_id">
-<span class="sig-name descname"><span class="pre">problem_id</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.problem_id" title="Permalink to this definition">#</a></dt>
-<dd><p>prefix for (athdf, hst, rst) output</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.meta">
-<span class="sig-name descname"><span class="pre">meta</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.meta" title="Permalink to this definition">#</a></dt>
-<dd><p>simulation metadata (information in athinput file)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.nums">
-<span class="sig-name descname"><span class="pre">nums</span></span><a class="headerlink" href="#pyglet.loadsim.LoadSim.nums" title="Permalink to this definition">#</a></dt>
-<dd><p>athdf output numbers</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>list of int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.load_athdf">
-<span class="sig-name descname"><span class="pre">load_athdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xarray'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyglet/loadsim.html#LoadSim.load_athdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyglet.loadsim.LoadSim.load_athdf" title="Permalink to this definition">#</a></dt>
-<dd><p>Read Athena hdf5 file and convert it to xarray Dataset</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num</strong> (<em>int</em>) – Snapshot number, e.g., /basedir/problem_id.00042.athdf</p></li>
-<li><p><strong>output_id</strong> (<em>int</em><em> (</em><em>optional</em><em>)</em>) – Output id given in the &lt;output#&gt; block. Useful when there are
-more than one athdf outputs.</p></li>
-<li><p><strong>load_method</strong> (<em>str</em><em> (</em><em>optional</em><em>)</em>) – Method to read athdf file. Available options are ‘xarray’ or ‘yt’.
-Default is ‘xarray’</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>dat</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>xarray.Dataset</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyglet.loadsim.LoadSim.load_hst">
-<span class="sig-name descname"><span class="pre">load_hst</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyglet/loadsim.html#LoadSim.load_hst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyglet.loadsim.LoadSim.load_hst" title="Permalink to this definition">#</a></dt>
-<dd><p>Reads athena++ history dump and convert it to xarray Dataset</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><p><strong>hst</strong> –</p>
-<dl class="simple">
-<dt>coordinate</dt><dd><ul class="simple">
-<li><p>t: simulation time</p></li>
-</ul>
-</dd>
-<dt>variables</dt><dd><ul class="simple">
-<li><p>dt: simulation timestep</p></li>
-<li><p>mass: total mass</p></li>
-<li><p>mom1, mom2, mom3: total momenta in x, y, z-dir.</p></li>
-<li><p>KE1, KE2, KE3: total kinetic E in x, y, z-dir.</p></li>
-<li><p>gravE: total self-grav. potential E (int 0.5*rho*Phi dV)</p></li>
-</ul>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>xarray.Dataset</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
     <script type="text/x-thebe-config">
@@ -529,7 +390,7 @@ Default is ‘xarray’</p></li>
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Introduction</p>
+        <p class="prev-next-title">pyglet</p>
       </div>
     </a>
     <a class="right-next"
