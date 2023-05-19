@@ -51,8 +51,8 @@ def to_spherical(vec, origin):
 def groupby_bins(dat, coord, edges, cumulative=False):
     """Alternative to xr.groupby_bins, which is very slow
 
-    Arguments
-    ---------
+    Paraetmers
+    ----------
     dat : xarray.DataArray
         input dataArray
     coord : str
@@ -61,11 +61,11 @@ def groupby_bins(dat, coord, edges, cumulative=False):
         bin edges
     cumulative : bool
         if True, perform cumulative binning, e.g.,
-          v_r_binned[i] = v_r( edge[0] <= r < edge[i+1] ).mean()
+        ``v_r_binned[i] = v_r( edge[0] <= r < edge[i+1] ).mean()``
         to calculate average velocity dispersion within radius r
 
-    Return
-    ------
+    Returns
+    -------
     res: xarray.DataArray
         binned array
     """

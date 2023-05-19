@@ -7,7 +7,17 @@ import yt
 class LoadSim(object):
     """Class for preparing Athena++ simulation data analysis.
 
-    Data members
+    Parameters
+    ----------
+    basedir : str
+            Name of the directory where all data is stored
+
+    Methods
+    -------
+    load_athdf : Reads hdf5 (.athdf) output file
+    load_hst : Reads history dump (.hst)
+
+    Attributes
     ------------
     basedir : str
         base directory of simulation output
@@ -21,26 +31,16 @@ class LoadSim(object):
         simulation metadata (information in athinput file)
     nums : list of int
         athdf output numbers
-
-    Methods
-    -------
-    load_athdf() : Reads hdf5 (.athdf) output file
-    load_hst() : Reads history dump (.hst)
     """
 
     def __init__(self, basedir):
         """Constructor for LoadSim class.
-
-        Arguments
-        ---------
-        basedir : str
-            Name of the directory where all data is stored
         """
 
         # Use pathlib.Path for handling file paths
         self.basedir = Path(basedir)
         self.basename = self.basedir.name
-        
+
         # Find output files by matching glob patterns
         self.files = {}
         patterns = dict(athinput='athinput.*',
@@ -90,8 +90,8 @@ class LoadSim(object):
     def load_athdf(self, num=None, output_id=None, load_method='xarray'):
         """Read Athena hdf5 file and convert it to xarray Dataset
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         num : int
             Snapshot number, e.g., /basedir/problem_id.00042.athdf
         output_id : int (optional)
@@ -101,7 +101,7 @@ class LoadSim(object):
             Method to read athdf file. Available options are 'xarray' or 'yt'.
             Default is 'xarray'
 
-        Return
+        Returns
         -------
         dat : xarray.Dataset
         """
@@ -141,8 +141,8 @@ class LoadSim(object):
     def load_hst(self):
         """Reads athena++ history dump and convert it to xarray Dataset
 
-        Return
-        ------
+        Returns
+        -------
         hst : xarray.Dataset
               coordinate
                   - t: simulation time
