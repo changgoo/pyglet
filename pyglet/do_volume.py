@@ -37,7 +37,7 @@ def make_sphere_volume(ds, iclick, Nrot=256, radius=(64, "pc")):
 
     source.tfh.tf = tf
     source.tfh.bounds = bounds
-    source.tfh.plot("transfer_function.png", profile_field="density")
+    source.tfh.plot("transfer_function_density.png")
 
     # source.set_transfer_function(tf)
     # source.tfh.plot("transfer_function.png", profile_field="density")
@@ -55,6 +55,7 @@ def make_sphere_volume(ds, iclick, Nrot=256, radius=(64, "pc")):
     tf.add_layers(3, 0.02, alpha=[100] * 3, colormap="autumn")
 
     vol2.set_transfer_function(tf)
+    vol2.tfh.plot("transfer_function_temperature.png")
     sc.add_source(vol2)
 
     cam = sc.camera
