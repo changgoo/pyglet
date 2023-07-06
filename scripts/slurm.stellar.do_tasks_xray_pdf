@@ -1,0 +1,18 @@
+#!/bin/bash
+#SBATCH --job-name=do_task_xray  # create a name for your job
+#SBATCH --nodes=1                # node count
+#SBATCH --ntasks=24              # total number of tasks
+#SBATCH --exclusive
+#SBATCH --cpus-per-task=1        # cpu-cores per task
+#SBATCH --time=24:00:00          # total run time limit (HH:MM:SS)
+
+module purge
+module load anaconda3/2022.5 openmpi/gcc/4.1.0
+conda activate pyathena-lem
+
+export PYTHONPATH="$PYTHONPATH:$HOME/pyglet"
+
+OUTDIR=$1
+
+cd $HOME/pyglet
+srun python pyglet/do_tasks_xray_pdf.py -b $OUTDIR 1> scripts/do_tasks_xray-$SLURM_JOB_ID.out 2> scripts/do_tasks_xray-$SLURM_JOB_ID.err
