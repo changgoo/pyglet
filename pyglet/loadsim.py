@@ -4,6 +4,13 @@ import xarray as xr
 from pathlib import Path
 import yt
 
+def _parse_athdf_filename(fname):
+    sp = fname.split('.')
+    outid, num, suffix = sp[-3:]
+    problem_id = '.'.join(sp[:-3])
+
+    return problem_id, outid, num, suffix
+
 class LoadSim(object):
     """Class for preparing Athena++ simulation data analysis.
 
@@ -50,7 +57,8 @@ class LoadSim(object):
                         partab='*par?.tab',
                         parhst='*par?.csv',
                         stdout='slurm-*.out',
-                        stderr='slurm-*.err') # add additional patterns here
+                        stderr='slurm-*.err',
+                        coolftn='*coolftn.txt') # add additional patterns here
         for key, pattern in patterns.items():
             self.files[key] = sorted(self.basedir.glob(pattern))
             if len(self.files[key]) == 0:
@@ -82,10 +90,34 @@ class LoadSim(object):
             self.problem_id = self.meta['job']['problem_id']
         except IndexError:
             print("WARNING: Failed to read metadata from the standard output file.")
-
+            if len(self.files['athdf'])>0:
+                problem_id, _, _, _, = _parse_athdf_filename(self.files['athdf'][0].name)
+                self.problem_id = problem_id
+        if len(self.files['coolftn'])>0:
+            if self.files['coolftn'][0].name == 'tigress_coolftn.txt':
+                self.tigress_cooling = True
+                import pandas as pd
+                from scipy.interpolate import interp1d
+                from .units import Units
+                self.u = Units(kind='LV', muH=1.4271)
+                cf=pd.read_csv(self.files['coolftn'][0]).rename(columns={'#rho':'rho'})
+                cf['T1'] = cf['Press']*self.u.pok/(self.u.muH*cf['rho'])
+                self.get_temp = interp1d(cf['T1'],cf['Temp'],fill_value="extrapolate")
+                self.get_Lambda = interp1d(cf['T1'],cf['cool'],fill_value="extrapolate")
+                self.get_Gamma = interp1d(cf['T1'],cf['heat'],fill_value="extrapolate")
         # Find athdf output numbers
-        self.nums = sorted(map(lambda x: int(x.name.removesuffix('.athdf')[-5:]),
-                               self.files['athdf']))
+        self.nums=dict()
+        for f in self.files['athdf']:
+            _, outid, num, _, = _parse_athdf_filename(f.name)
+            if outid in self.nums:
+                self.nums[outid].append(int(num))
+            else:
+                self.nums[outid] = [int(num)]
+        for k in self.nums:
+            self.nums[k] = sorted(self.nums[k])
+        # self.nums = sorted(map(lambda x: int(x.name.removesuffix('.athdf')[-5:]),
+        #                        self.files['athdf']))
+
 
     def load_athdf(self, num=None, output_id=None, load_method='xarray'):
         """Read Athena hdf5 file and convert it to xarray Dataset
@@ -127,15 +159,15 @@ class LoadSim(object):
                 dx = np.unique(np.diff(dat[ar_key])).squeeze()
                 if dx.size == 1: dx = dx[()]
                 attrs[xr_key] = dx
-            attrs['meta'] = self.meta
+            if hasattr(self,'meta'): attrs['meta'] = self.meta
             ds = xr.Dataset(
                 data_vars=dict(zip(varnames, variables)),
                 coords=dict(x=dat['x1v'], y=dat['x2v'], z=dat['x3v']),
                 attrs=attrs
             )
         elif load_method=='yt':
-            ds = yt.load(self.basedir / '{}.out{}.{:05d}.athdf'.format(
-                         self.problem_id, output_id, num))
+            ds = self.ytload(self.basedir / '{}.out{}.{:05d}.athdf'.format(
+                             self.problem_id, output_id, num))
         return ds
 
     def load_hst(self):
@@ -163,3 +195,65 @@ class LoadSim(object):
             hst = hst.rename({'grav-E':'gravE'})
 
         return hst
+
+    def ytload(self,fname):
+        self.u.units_override.update(dict(magnetic_unit=(self.u.muG*1.e-6,"gauss")))
+
+        # define fields from TIGRESS-NCR output
+        from yt.utilities.physical_constants import mh, me, kboltz
+
+        muH = self.u.muH
+
+        def _ndensity(field, data):
+            return data[("gas","density")]/(muH*mh)
+
+        def _nelectron(field, data):
+            hot = data[("gas", "temperature")] > 3.5e4
+            return data[("gas","density")]*hot*1.2/(muH*mh)
+
+        def _T1(field, data):
+            return data[("gas","pressure")]/data[("gas","H_nuclei_density")]/(muH*kboltz)
+
+        def _temperature(field,data):
+            return self.get_temp(data[("gas","T1")])*yt.units.K
+
+        def _EM(field, data):
+            return data[("gas","H_nuclei_density")]*data[("gas","El_number_density")]*data[("gas","cell_volume")]
+
+        # def _metallicity(field, data):
+        #     return data[("athena","specific_scalar[0]")]
+
+        # def _metallicity_solar(field, data):
+        #     return data[("athena","specific_scalar[0]")]/Zsolar
+
+        ds = yt.load(fname,units_override=self.u.units_override,hint='AthenaPPDataset')
+        # print(ds.field_list)
+        # add/override fields
+        ds.add_field(("gas","H_nuclei_density"),function=_ndensity, force_override=True,
+                     units='cm**(-3)',display_name=r'$n_{\rm H}$', sampling_type="cell")
+        ds.add_field(("gas","El_number_density"), function=_nelectron, force_override=True,
+                     units='cm**(-3)',display_name=r'$n_{\rm e}$', sampling_type="cell")
+        ds.add_field(("gas","T1"), function=_T1, force_override=True,
+                     units='K',display_name=r'$T_\mu$', sampling_type="cell")
+        ds.add_field(("gas","temperature"), function=_temperature, force_override=True,
+                     units='K',display_name=r'T', sampling_type="cell")
+        ds.add_field(("gas","emission_measure"), function=_EM, force_override=True,
+                     units='cm**(-3)',display_name=r'EM', sampling_type="cell")
+        # ds.add_field(("gas","metallicity"), function=_metallicity, force_override=True,
+        #              units='dimensionless',display_name=r'Z', sampling_type="cell")
+        # ds.add_field(("gas","metallicity_solar"), function=_metallicity_solar,
+        #              force_override=True,
+        #              units='dimensionless',display_name=r'$Z/Z_\odot$', sampling_type="cell")
+
+        def ionized_gas(pfilter, data):
+            pfilter1 = data[pfilter.filtered_type, "temperature"] > 3.5e4
+            return pfilter1
+
+        yt.add_particle_filter(
+            "ionized_gas",
+            function=ionized_gas,
+            filtered_type="gas",
+            requires=["temperature", "density"],
+        )
+
+        return ds
