@@ -35,7 +35,8 @@ if __name__ == "__main__":
     locals().update(args)
 
     import astropy.constants as ac
-    redshift=0.00001129
+
+    redshift = 0.00001129
     # from astropy.cosmology import Planck18, z_at_value
 
     # rmax = 100 * ac.pc

@@ -3,6 +3,7 @@
 from mpi4py import MPI
 import numpy as np
 
+
 def split_container(container, count):
     """
     Original source: https://gist.github.com/krischer/2c7b95beed642248487a
@@ -12,7 +13,8 @@ def split_container(container, count):
     """
     return [container[_i::count] for _i in range(count)]
 
-def split_N(COMM,N):
+
+def split_N(COMM, N):
     """
     Distribute N consecutive things (rows of a matrix, blocks of a 1D array)
     as evenly as possible over a given COMMunicator.
@@ -30,36 +32,36 @@ def split_N(COMM,N):
     rend : 1 + index of last row
     """
 
-    P      = COMM.size
-    rank   = COMM.rank
+    P = COMM.size
+    rank = COMM.rank
     rstart = 0
-    rend   = 0
+    rend = 0
     if P >= N:
         if rank < N:
             rstart = rank
-            rend   = rank + 1
+            rend = rank + 1
     else:
-        n = N/P
-        remainder = N%P
-        rstart    = n * rank
-        rend      = n * (rank+1)
+        n = N / P
+        remainder = N % P
+        rstart = n * rank
+        rend = n * (rank + 1)
         if remainder:
             if rank >= remainder:
                 rstart += remainder
-                rend   += remainder
-            else: 
+                rend += remainder
+            else:
                 rstart += rank
-                rend   += rank + 1
+                rend += rank + 1
     return rstart, rend
 
-if __name__ == '__main__':
 
+if __name__ == "__main__":
     # Simple tests
     COMM = MPI.COMM_WORLD
     size = COMM.Get_size()
     rank = COMM.Get_rank()
 
-    print('size, rank', size, rank)
+    print("size, rank", size, rank)
     print(split_N(COMM, 100))
 
     # Collect whatever has to be done in a list. Here we'll just collect a list of
@@ -70,7 +72,7 @@ if __name__ == '__main__':
         jobs = split_container(jobs, COMM.size)
     else:
         jobs = None
-        
+
     # Scatter jobs across cores.
     jobs = COMM.scatter(jobs, root=0)
     print(jobs)

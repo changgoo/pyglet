@@ -35,7 +35,8 @@ if __name__ == "__main__":
     locals().update(args)
 
     import astropy.constants as ac
-    redshift=0.00001129
+
+    redshift = 0.00001129
     # from astropy.cosmology import Planck18, z_at_value
 
     # rmax = 100 * ac.pc
@@ -53,8 +54,8 @@ if __name__ == "__main__":
         print("basedir, nums", s.basedir, nums)
         nums = split_container(nums, COMM.size)
         ds = s.load_athdf(num=10, output_id=2, load_method="yt")
-        xray = Xray(ds,savdir=os.fspath(s.basedir))
-        os.makedirs(os.path.join(xray.savdir,'T-vz-profile'),exist_ok=True)
+        xray = Xray(ds, savdir=os.fspath(s.basedir))
+        os.makedirs(os.path.join(xray.savdir, "T-vz-profile"), exist_ok=True)
     else:
         nums = None
 
@@ -63,29 +64,30 @@ if __name__ == "__main__":
 
     time0 = time.time()
 
-    overwrite=True
+    overwrite = True
 
     for num in mynums:
         print(num, end=" ")
 
         ds = s.load_athdf(num=num, output_id=2, load_method="yt")
-        xray = Xray(ds,savdir=os.fspath(s.basedir))
-        fname = os.path.join(xray.savdir,'T-vz-profile',
-                             ds.basename.replace('.athdf','.profile.nc'))
+        xray = Xray(ds, savdir=os.fspath(s.basedir))
+        fname = os.path.join(
+            xray.savdir, "T-vz-profile", ds.basename.replace(".athdf", ".profile.nc")
+        )
         print(fname)
         if os.path.isfile(fname):
             if overwrite:
                 os.remove(fname)
-                create=True
+                create = True
             else:
                 dset = xr.open_dataset(fname)
-                create=False
+                create = False
         else:
-            create=True
+            create = True
 
         if create:
             xray.add_xray_fields()
-            profile = xray.create_profile(xy='T-vz')
+            profile = xray.create_profile(xy="T-vz")
             dset = xray.convert_profile_to_dataset(profile)
             dset.to_netcdf(fname)
             print(f"{fname} created")
