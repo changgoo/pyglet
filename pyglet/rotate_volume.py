@@ -12,16 +12,11 @@ import sys
 import numpy as np
 
 from pyglet.loadsim import LoadSim
-from pyglet.xray import Xray
-
-from pyglet.utils.split_container import split_container
-from pyglet.utils.make_movie import make_movie
 
 import yt
 
 
-def make_sphere_volume(ds, num, Nrot=1000, radius=96):
-    import yt
+def make_sphere_volume(ds, num, radius=96):
     from yt.visualization.volume_rendering.api import Scene, create_volume_source
 
     n1 = 400
@@ -74,18 +69,13 @@ def make_sphere_volume(ds, num, Nrot=1000, radius=96):
     cam.zoom(zoomfactor)
     cam.resolution = (1024, 1024)
 
-    # rotate iclicks
-    frame = 0
-    for _ in cam.iter_rotate(2 * np.pi, Nrot):
-        frame += 1
-        if frame == (num % Nrot):
-            break
-
     sc.annotate_domain(ds, color=[1, 1, 1, 1])
     return sc
 
 
 if __name__ == "__main__":
+    yt.enable_parallelism()
+
     COMM = MPI.COMM_WORLD
 
     basedir_def = "/tigress/changgoo/TIGRESS-NCR/R8_4pc_NCR"
@@ -101,46 +91,23 @@ if __name__ == "__main__":
     locals().update(args)
 
     s = LoadSim(basedir)
+    foutdir = osp.join(os.fspath(s.basedir), "volume")
+    os.makedirs(foutdir, exist_ok=True)
 
-    nums = s.nums["out2"][1:]  # skip 0
+    ds = s.load_athdf(num=320, output_id=2, load_method="yt")
+    sc = make_sphere_volume(ds, 320)
 
-    if COMM.rank == 0:
-        print("basedir, nums", s.basedir, nums)
-        nums = split_container(nums, COMM.size)
-    else:
-        nums = None
+    # rotate iclicks
+    Nrot = 512
+    frame = 0
+    for _ in sc.camera.iter_rotate(2 * np.pi, Nrot):
+        frame += 1
+        fout = osp.join(foutdir, f"rotation_{frame:04d}.png")
+        sc.save(fout)
+        sys.stdout.flush()
 
-    mynums = COMM.scatter(nums, root=0)
-    print("[rank, mynums]:", COMM.rank, mynums)
-
-    time0 = time.time()
-    if True:
-        for num in mynums:
-            ds = s.load_athdf(num=num, output_id=2, load_method="yt")
-            sc = make_sphere_volume(ds, num)
-            foutdir = osp.join(os.fspath(s.basedir), "volume")
-            os.makedirs(foutdir, exist_ok=True)
-            fout = osp.join(foutdir, f"time_rotation_{num:04d}.png")
-            sc.save(fout)
-
-            n = gc.collect()
-            print("Unreachable objects:", n, end=" ")
-            print("Remaining Garbage:", end=" ")
-            pprint.pprint(gc.garbage)
-            sys.stdout.flush()
-
-    # COMM.barrier()
-
-    if COMM.rank == 0:
-        fin = osp.join(os.fspath(s.basedir), "volume/time_rotation_*.png")
-        fout = osp.join(os.fspath(s.basedir), "{0:s}_volume.mp4".format(s.basename))
-        make_movie(fin, fout, fps_in=15, fps_out=15)
-        from shutil import copyfile
-
-        copyfile(
-            fout,
-            osp.join(
-                "/tigress/changgoo/public_html/temporary_movies/SNTI",
-                osp.basename(fout),
-            ),
-        )
+    n = gc.collect()
+    print("Unreachable objects:", n, end=" ")
+    print("Remaining Garbage:", end=" ")
+    pprint.pprint(gc.garbage)
+    sys.stdout.flush()

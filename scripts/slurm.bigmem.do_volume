@@ -2,7 +2,7 @@
 #SBATCH --job-name=volume        # create a name for your job
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=64              # total number of tasks
-#SBATCH --mem=2048G
+#SBATCH --mem=3584G
 #SBATCH --time=01:00:00
 #SBATCH --partition=bigmem
 #SBATCH --exclusive
@@ -17,4 +17,4 @@ export PYTHONPATH="$PYTHONPATH:$HOME/pyglet"
 OUTDIR=$1
 
 cd $HOME/pyglet
-srun python pyglet/volume.py -b $OUTDIR 1> scripts/logs/do_volume-$SLURM_JOB_ID.out 2> scripts/logs/do_volume-$SLURM_JOB_ID.err
+srun python pyglet/rotate_volume.py -b $OUTDIR 1> scripts/logs/rotate_volume-$SLURM_JOB_ID.out 2> scripts/logs/rotate_volume-$SLURM_JOB_ID.err
