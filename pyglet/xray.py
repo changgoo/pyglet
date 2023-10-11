@@ -15,7 +15,7 @@ class Xray(object):
         emin=0.1,
         emax=10,
         nbins=1000,
-        redshift=0.00005,
+        dist_kpc=50,
         sky_center=(45.0, 30.0),
         model="apec",
         binscale="log",
@@ -23,12 +23,19 @@ class Xray(object):
         # self.sim = sim
         self.ytds = ytds
         self.basename = "{}".format(ytds)
-        self.savdir = os.path.join(savdir, "xray2")
-        self.figdir = os.path.join(savdir, "xray2", "figure")
-        self.profdir = os.path.join(savdir, "xray2", "profile")
+        self.savdir = os.path.join(savdir, "xray")
+        self.figdir = os.path.join(savdir, "xray", "figure")
+        self.profdir = os.path.join(savdir, "xray", "profile")
         self.verbose = verbose
-        self.redshift = redshift
+        self.dist_kpc = dist_kpc
         self.sky_center = sky_center
+
+        # create new folders
+        if verbose:
+            print(f"creating new folders...")
+            print(f"  {self.savdir}")
+            print(f"  {self.figdir}")
+            print(f"  {self.profdir}")
         os.makedirs(self.savdir, exist_ok=True)
         os.makedirs(self.figdir, exist_ok=True)
         os.makedirs(self.profdir, exist_ok=True)
@@ -36,9 +43,17 @@ class Xray(object):
         # Zmet = self.sim.par['problem']['Z_gas']
         Zmet = 1
 
+        if verbose:
+            print(f"pyxsim CIE source model is initialized with:")
+            print(f"  model = {model}, emin = {emin}, emax = {emax}, nbins = {nbins},")
+            print(f"  Zmet={Zmet}, binscale = {binscale}, abund_table=aspl")
         self.source_model = pyxsim.CIESourceModel(
             model, emin, emax, nbins, Zmet, binscale=binscale, abund_table="aspl"
         )
+
+        if verbose:
+            print(f"default parameters for X-ray simulator:")
+            print(f"dist={dist_kpc} kpc, sky_center={sky_center}")
 
     def add_xray_fields(self):
         xray_fields = self.source_model.make_source_fields(self.ytds, 0.5, 2.0)
@@ -133,12 +148,13 @@ class Xray(object):
             topbox = ds.box([le[0], le[1], zcut], re)
             botbox = ds.box(le, [re[0], re[1], -zcut])
             self.regions.update(dict(top=topbox, bot=botbox))
+        if self.verbose:
+            print("regions of interest are set:")
+            for k,v in self.regions.items():
+                print(f"  self.regions[{k}] = {v}")
 
     def set_filenames(self, axis="z", photon=True, event=True, simput=True):
-        redshift = self.redshift
-        from astropy.cosmology import Planck18
-
-        dist_kpc = int(Planck18.comoving_distance(redshift).to("kpc").value)
+        dist_kpc = self.dist_kpc
 
         ds = self.ytds
         if not hasattr(self, "regions"):
@@ -159,21 +175,29 @@ class Xray(object):
             simput_fnames[boxname] = event_fname.replace("_events.h5", "_simput.fits")
         if photon:
             self.photon_fnames = photon_fnames
+            if self.verbose:
+                print("phton list output will be stored at: ")
+                for k,v in photon_fnames.items():
+                    print(f"  photon_fnames[{k}]={v}")
         if event:
             self.event_fnames = event_fnames
+            if self.verbose:
+                print("event output will be stored at: ")
+                for k,v in event_fnames.items():
+                    print(f"  event_fnames[{k}]={v}")
         if simput:
+            if self.verbose:
+                print("simput output will be stored at: ")
+                for k,v in simput_fnames.items():
+                    print(f"  simput_fnames[{k}]={v}")
             self.simput_fnames = simput_fnames
 
     def make_photons(
-        self, exp_time=(1000, "ks"), area=(1, "m**2"), redshift=0.00005, overwrite=False
+        self, exp_time=(1000, "ks"), area=(1, "m**2"), dist_kpc = 50, overwrite=False
     ):
         if (not overwrite) and hasattr(self, "photon_fnames"):
             if self.test_files(self.photon_fnames):
                 return
-
-        from astropy.cosmology import Planck18
-
-        dist_kpc = int(Planck18.comoving_distance(redshift).to("kpc").value)
 
         ds = self.ytds
         if not hasattr(self, "regions"):
@@ -188,7 +212,8 @@ class Xray(object):
                     print("photon file {} exist".format(photon_fname))
             else:
                 _photons, n_cells = pyxsim.make_photons(
-                    photon_fname, box, redshift, area, exp_time, self.source_model
+                    photon_fname, box, 0.0, area, exp_time, self.source_model,
+                    dist = dist_kpc
                 )
             photon_fnames[name] = photon_fname
         self.photon_fnames = photon_fnames
@@ -201,7 +226,7 @@ class Xray(object):
                 return
 
         ds = self.ytds
-        self.make_photons(redshift=self.redshift)
+        self.make_photons(dist_kpc=self.dist_kpc)
         event_fnames = dict()
         for boxname, photon_fname in self.photon_fnames.items():
             event_fname = photon_fname.replace("photons", "{}_events".format(axis))
@@ -245,6 +270,10 @@ class Xray(object):
             )
             simput_fnames[boxname] = event_fname.replace("_events.h5", "_simput.fits")
         self.simput_fnames = simput_fnames
+        if self.verbose:
+            print("simput file is created at ")
+            for k,v in simput_fnames.items():
+                print("  simput_fnames[{k}]={v}")
 
     def instrument_simulator(
         self,
@@ -260,6 +289,9 @@ class Xray(object):
         img_fnames = dict()
         spec_fnames = dict()
         for boxname, simput_fname in self.simput_fnames.items():
+            if self.verbose:
+                print(f"Simulating {boxname} on {inst} with {exp} ks for")
+                print(f"  source only (src), source with background (onsrc), background only (offsrc)")
             for target in ["src", "onsrc", "offsrc"]:
                 if target == "src":
                     sky_center = self.sky_center

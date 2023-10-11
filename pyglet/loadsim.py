@@ -58,8 +58,8 @@ class LoadSim(object):
             rst="*.rst",
             partab="*par?.tab",
             parhst="*par?.csv",
-            stdout="slurm-*.out",
-            stderr="slurm-*.err",
+            stdout="out*.txt",
+            stderr="err*.txt",
             coolftn="*coolftn.txt",
         )  # add additional patterns here
         for key, pattern in patterns.items():
